@@ -9,7 +9,13 @@ import io.gatling.core.util.NameGen
 
 import scala.util.Try
 
-case class GrpcAction(clock: Clock, statsEngine: StatsEngine, requestName: Expression[String], next: Action, send: Expression[Try[Unit]]) extends Action with NameGen {
+case class GrpcAction(clock: Clock,
+                      statsEngine: StatsEngine,
+                      requestName: Expression[String],
+                      next: Action,
+                      send: Expression[Try[Unit]])
+    extends Action
+    with NameGen {
   override def name: String = genName("grpcRequest")
 
   override def execute(session: Session): Unit = {
@@ -23,7 +29,13 @@ case class GrpcAction(clock: Clock, statsEngine: StatsEngine, requestName: Expre
       val status = res.fold(_ => KO, _ => OK)
       val code = res.fold(e => throw new NotImplementedError("todo"), _ => None)
       val msg = res.fold(e => Some(e.getMessage), _ => None)
-      statsEngine.logResponse(session, name, start, clock.nowMillis, status, code, msg)
+      statsEngine.logResponse(session,
+                              name,
+                              start,
+                              clock.nowMillis,
+                              status,
+                              code,
+                              msg)
     }
 
     x.onFailure(msg => statsEngine.reportUnbuildableRequest(session, "", msg))
