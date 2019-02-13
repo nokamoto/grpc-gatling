@@ -32,7 +32,7 @@ case class GrpcAction(clock: Clock,
       statsEngine.logResponse(session,
                               name,
                               start,
-                              clock.nowMillis,
+        end,
                               status,
                               code,
                               msg)
