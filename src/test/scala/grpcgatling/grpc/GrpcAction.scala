@@ -29,13 +29,7 @@ case class GrpcAction(clock: Clock,
       val status = res.fold(_ => KO, _ => OK)
       val code = res.fold(e => throw new NotImplementedError("todo"), _ => None)
       val msg = res.fold(e => Some(e.getMessage), _ => None)
-      statsEngine.logResponse(session,
-                              name,
-                              start,
-                              clock.nowMillis,
-                              status,
-                              code,
-                              msg)
+      statsEngine.logResponse(session, name, start, end, status, code, msg)
     }
 
     x.onFailure(msg => statsEngine.reportUnbuildableRequest(session, "", msg))

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package ping;
+
+message Message {
+  int64 x = 1;
+}
+
+service PingService {
+  rpc Send(Message) returns (Message);
+}
