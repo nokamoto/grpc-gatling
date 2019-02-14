@@ -17,9 +17,10 @@ class StubSimulation extends BasicSimulation {
   private[this] val protocol: GrpcProtocol = GrpcProtocol("localhost", port)
 
   private[this] val scn =
-    scenario("BasicSimulation").exec(grpc("/ping.PingService/Ping", ExecutionContext.global) { _ =>
-      protocol.stub.send(Message())
-    })
+    scenario("BasicSimulation").exec(
+      grpc("/ping.PingService/Ping", ExecutionContext.global) { _ =>
+        protocol.stub.send(Message())
+      })
 
   before {
     println(s"start gRPC server $port")

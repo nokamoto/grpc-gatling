@@ -30,15 +30,27 @@ case class GrpcAction(clock: Clock,
     } yield {
       res.onComplete {
         case Success(_) =>
-          statsEngine.logResponse(session, name, start, clock.nowMillis, OK, None, None)
+          statsEngine.logResponse(session,
+                                  name,
+                                  start,
+                                  clock.nowMillis,
+                                  OK,
+                                  None,
+                                  None)
           next.!(session)
 
         case Failure(e) =>
           val code = e match {
             case s: StatusRuntimeException => Some(s.getStatus.toString)
-            case _ => Some("UNKNOWN")
+            case _                         => Some("UNKNOWN")
           }
-          statsEngine.logResponse(session, name, start, clock.nowMillis, OK, code, Some(e.getMessage))
+          statsEngine.logResponse(session,
+                                  name,
+                                  start,
+                                  clock.nowMillis,
+                                  OK,
+                                  code,
+                                  Some(e.getMessage))
           next.!(session)
       }(ec)
     }

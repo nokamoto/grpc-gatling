@@ -18,9 +18,10 @@ class ErrorSimulation extends BasicSimulation {
   private[this] val protocol: GrpcProtocol = GrpcProtocol("localhost", port)
 
   private[this] val scn =
-    scenario("BasicSimulation").exec(blockingGrpc("/ping.PingService/Ping", ExecutionContext.global) { _ =>
-      protocol.blockingStub.send(Message())
-    })
+    scenario("BasicSimulation").exec(
+      blockingGrpc("/ping.PingService/Ping", ExecutionContext.global) { _ =>
+        protocol.blockingStub.send(Message())
+      })
 
   before {
     println(s"start gRPC server $port")

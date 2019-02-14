@@ -9,12 +9,18 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 abstract class BasicSimulation extends Simulation {
-  protected[this] def blockingGrpc(name: Expression[String], ec: ExecutionContext)(
-      f: Session => Unit): GrpcActionBuilder = {
-    GrpcActionBuilder(name, ec)(session => Try(f(session)).fold(e => Future.failed(e), v => Future.successful(v)).success)
+  protected[this] def blockingGrpc(
+      name: Expression[String],
+      ec: ExecutionContext)(f: Session => Unit): GrpcActionBuilder = {
+    GrpcActionBuilder(name, ec)(
+      session =>
+        Try(f(session))
+          .fold(e => Future.failed(e), v => Future.successful(v))
+          .success)
   }
 
-  protected[this] def grpc(name: Expression[String], ec: ExecutionContext)(f: Session => Future[_]): GrpcActionBuilder = {
+  protected[this] def grpc(name: Expression[String], ec: ExecutionContext)(
+      f: Session => Future[_]): GrpcActionBuilder = {
     GrpcActionBuilder(name, ec)(session => f(session))
   }
 }

@@ -7,15 +7,15 @@ import io.gatling.core.structure.ScenarioContext
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class GrpcActionBuilder(requestName: Expression[String], ec: ExecutionContext)(
-    send: Expression[Future[_]])
+case class GrpcActionBuilder(requestName: Expression[String],
+                             ec: ExecutionContext)(send: Expression[Future[_]])
     extends ActionBuilder { self =>
   override def build(ctx: ScenarioContext, next: Action): Action = {
     GrpcAction(ctx.coreComponents.clock,
-      ctx.coreComponents.statsEngine,
-      requestName,
-      next,
-      send,
-      ec)
+               ctx.coreComponents.statsEngine,
+               requestName,
+               next,
+               send,
+               ec)
   }
 }
