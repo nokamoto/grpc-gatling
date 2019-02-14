@@ -6,6 +6,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.session.{Expression, Session}
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
+import io.grpc.StatusRuntimeException
 
 import scala.util.Try
 
@@ -27,7 +28,10 @@ case class GrpcAction(clock: Clock,
     } yield {
       val end = clock.nowMillis
       val status = res.fold(_ => KO, _ => OK)
-      val code = res.fold(e => throw new NotImplementedError("todo"), _ => None)
+      val code = res.fold({
+        case e: StatusRuntimeException => Some(e.getStatus.toString)
+        case _ => Some("UNKNOWN")
+      }, _ => None)
       val msg = res.fold(e => Some(e.getMessage), _ => None)
       statsEngine.logResponse(session, name, start, end, status, code, msg)
     }

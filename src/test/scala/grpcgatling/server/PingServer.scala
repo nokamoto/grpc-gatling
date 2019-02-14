@@ -13,9 +13,9 @@ class PingServer extends PingService {
 }
 
 object PingServer {
-  def server(port: Int, ec: ExecutionContext): Server =
+  def server(port: Int, ec: ExecutionContext, service: PingService): Server =
     NettyServerBuilder
       .forPort(port)
-      .addService(PingServiceGrpc.bindService(new PingServer, ec))
+      .addService(PingServiceGrpc.bindService(service, ec))
       .build()
 }
