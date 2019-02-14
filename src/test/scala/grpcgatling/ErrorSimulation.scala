@@ -11,7 +11,9 @@ import scala.concurrent.duration._
 class ErrorSimulation extends BasicSimulation {
   private[this] val port = 9001
 
-  private[this] val server = PingServer.server(port, ExecutionContext.global, new UnimplementedPingServer)
+  private[this] val server = PingServer.server(port,
+                                               ExecutionContext.global,
+                                               new UnimplementedPingServer)
 
   private[this] val protocol: GrpcProtocol = GrpcProtocol("localhost", port)
 

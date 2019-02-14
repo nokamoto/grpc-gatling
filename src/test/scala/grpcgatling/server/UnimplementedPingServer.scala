@@ -7,5 +7,6 @@ import ping.PingServiceGrpc.PingService
 import scala.concurrent.Future
 
 class UnimplementedPingServer extends PingService {
-  override def send(request: Message): Future[Message] = Future.failed(new StatusRuntimeException(Status.UNIMPLEMENTED))
+  override def send(request: Message): Future[Message] =
+    Future.failed(new StatusRuntimeException(Status.UNIMPLEMENTED))
 }

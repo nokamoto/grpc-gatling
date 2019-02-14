@@ -11,7 +11,8 @@ import scala.concurrent.duration._
 class BlockingStubSimulation extends BasicSimulation {
   private[this] val port = 9001
 
-  private[this] val server = PingServer.server(port, ExecutionContext.global, new PingServer)
+  private[this] val server =
+    PingServer.server(port, ExecutionContext.global, new PingServer)
 
   private[this] val protocol: GrpcProtocol = GrpcProtocol("localhost", port)
 

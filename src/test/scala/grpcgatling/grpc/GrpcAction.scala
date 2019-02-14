@@ -30,7 +30,7 @@ case class GrpcAction(clock: Clock,
       val status = res.fold(_ => KO, _ => OK)
       val code = res.fold({
         case e: StatusRuntimeException => Some(e.getStatus.toString)
-        case _ => Some("UNKNOWN")
+        case _                         => Some("UNKNOWN")
       }, _ => None)
       val msg = res.fold(e => Some(e.getMessage), _ => None)
       statsEngine.logResponse(session, name, start, end, status, code, msg)
