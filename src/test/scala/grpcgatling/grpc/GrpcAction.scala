@@ -1,6 +1,6 @@
 package grpcgatling.grpc
 
-import io.gatling.commons.stats.{KO, OK}
+import io.gatling.commons.stats.OK
 import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
 import io.gatling.core.session.{Expression, Session}
@@ -8,13 +8,15 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.grpc.StatusRuntimeException
 
-import scala.util.Try
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 case class GrpcAction(clock: Clock,
                       statsEngine: StatsEngine,
                       requestName: Expression[String],
                       next: Action,
-                      send: Expression[Try[Unit]])
+                      send: Expression[Future[_]],
+                      ec: ExecutionContext)
     extends Action
     with NameGen {
   override def name: String = genName("grpcRequest")
@@ -26,18 +28,36 @@ case class GrpcAction(clock: Clock,
       name <- requestName(session)
       res <- send(session)
     } yield {
-      val end = clock.nowMillis
-      val status = res.fold(_ => KO, _ => OK)
-      val code = res.fold({
-        case e: StatusRuntimeException => Some(e.getStatus.toString)
-        case _                         => Some("UNKNOWN")
-      }, _ => None)
-      val msg = res.fold(e => Some(e.getMessage), _ => None)
-      statsEngine.logResponse(session, name, start, end, status, code, msg)
+      res.onComplete {
+        case Success(_) =>
+          statsEngine.logResponse(session,
+                                  name,
+                                  start,
+                                  clock.nowMillis,
+                                  OK,
+                                  None,
+                                  None)
+          next.!(session)
+
+        case Failure(e) =>
+          val code = e match {
+            case s: StatusRuntimeException => Some(s.getStatus.toString)
+            case _                         => Some("UNKNOWN")
+          }
+          statsEngine.logResponse(session,
+                                  name,
+                                  start,
+                                  clock.nowMillis,
+                                  OK,
+                                  code,
+                                  Some(e.getMessage))
+          next.!(session)
+      }(ec)
     }
 
-    x.onFailure(msg => statsEngine.reportUnbuildableRequest(session, "", msg))
-
-    next.!(session)
+    x.onFailure { msg =>
+      statsEngine.reportUnbuildableRequest(session, "", msg)
+      next.!(session)
+    }
   }
 }
